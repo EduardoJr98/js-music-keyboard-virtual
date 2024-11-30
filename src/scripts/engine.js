@@ -1,70 +1,122 @@
-const pianoKeys = document.querySelectorAll(".piano-keys .key");
-const volumeSlider = document.querySelector(".volume-slider input");
-const keysCheck = document.querySelector(".keys-check input");
-
-let mapedKeys = [];
-let audioContext = new (window.AudioContext || window.webkitAudioContext)();
-let gainNode = audioContext.createGain();
-let distortion = audioContext.createWaveShaper();
-
-// Configurando distorção
-function makeDistortionCurve(amount) {
-  const n_samples = 256;
-  const curve = new Float32Array(n_samples);
-  const deg = Math.PI / 180;
-  for (let i = 0; i < n_samples; ++i) {
-    const x = (i * 2) / n_samples - 1;
-    curve[i] = ((3 + amount) * x * 20 * deg) / (Math.PI + amount * Math.abs(x));
-  }
-  return curve;
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: black;
+  color: #fff;
 }
-distortion.curve = makeDistortionCurve(400); // Ajuste a intensidade da distorção
-distortion.oversample = "4x";
 
-// Conectar áudio com distorção
-const applyAudioEffects = (audio) => {
-  const track = audioContext.createMediaElementSource(audio);
-  track.connect(distortion);
-  distortion.connect(gainNode);
-  gainNode.connect(audioContext.destination);
-};
+.container {
+  width: 780px;
+  border-radius: 20px;
+  padding: 35px 40px;
+  background-color: #855E42;
+}
 
-const playTune = (key) => {
-  const audio = new Audio(`src/tunes/${key}.wav`);
-  applyAudioEffects(audio);
+.container header {
+  color: red;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
-  // Ajuste de volume
-  audio.volume = volumeSlider.value;
+header h2 {
+  font-size: 1.6rem;
+}
 
-  // Tocar áudio
-  audio.play();
+header .column {
+  display: flex;
+  align-items: center;
+}
 
-  // Ativar animação de tecla
-  const clickedKey = document.querySelector(`[data-key="${key}"]`);
-  clickedKey.classList.add("active");
-  setTimeout(() => {
-    clickedKey.classList.remove("active");
-  }, 150);
-};
+header .column span {
+  font-weight: 500;
+  margin-right: 15px;
+  font-size: 1.19rem;
+}
 
-pianoKeys.forEach((key) => {
-  key.addEventListener("click", () => playTune(key.dataset.key));
-  mapedKeys.push(key.dataset.key);
-});
+.volume-slider input {
+  accent-color: #fff;
+}
 
-document.addEventListener("keydown", (e) => {
-  if (mapedKeys.includes(e.key)) {
-    playTune(e.key);
-  }
-});
+.keys-check input {
+  width: 60px;
+  height: 30px;
+  appearance: none;
+  border-radius: 30px;
+  background-color: #4b4b4b;
+  cursor: pointer;
+  position: relative;
+}
 
-const handleVolume = (e) => {
-  gainNode.gain.value = e.target.value;
-};
+.keys-check input::before {
+  content: "";
+  height: 20px;
+  width: 20px;
+  background-color: #8c8c8c;
+  top: 50%;
+  left: 0.3rem;
+  border-radius: inherit;
+  position: absolute;
+  transform: translateY(-50%);
+  transition: all 0.3s ease;
+}
 
-const showHideKeys = () => {
-  pianoKeys.forEach((key) => key.classList.toggle("hide"));
-};
+.keys-check input:checked::before {
+  left: 2.1rem;
+  background-color: #fff;
+}
 
-volumeSlider.addEventListener("input", handleVolume);
-keysCheck.addEventListener("click", showHideKeys);
+.piano-keys {
+  display: flex;
+  margin-top: 40px;
+}
+.piano-keys .key {
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  color: #a2a2a2;
+  position: relative;
+  text-transform: uppercase;
+}
+
+.piano-keys .white {
+  width: 70px;
+  height: 230px;
+  border: 1px solid black;
+  border-radius: 8px;
+  background: linear-gradient(#fff 96%, #eee 4%);
+}
+
+.piano-keys .black {
+  width: 44px;
+  height: 140px;
+  z-index: 2;
+  margin: 0 -22px 0 -22px;
+  border: 1px solid black;
+  border-radius: 0 0 5px 5px;
+  background: linear-gradient(#333, #000);
+}
+
+.piano-keys span {
+  position: absolute;
+  bottom: 20px;
+  width: 100%;
+  text-align: center;
+  font-size: 1.13rem;
+}
+
+.piano-keys .white.active {
+  box-shadow: inset -5px 5px 20px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(to bottom #fff 0%, #eee 100%);
+}
+
+.piano-keys .black.active {
+  box-shadow: inset -5px 5px 10px rgba(255, 255, 255, 0.1);
+  background: linear-gradient(to bottom #000, #434343);
+}
+
+.piano-keys .key.hide span {
+  display: none;
+}
