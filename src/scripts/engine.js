@@ -1,122 +1,40 @@
-body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  background-color: black;
-  color: #fff;
-}
+const pianoKeys = document.querySelectorAll(".piano-keys .key");
+const volumeSlider = document.querySelector(".volume-slider input");
+const keysCheck = document.querySelector(".keys-check input");
 
-.container {
-  width: 780px;
-  border-radius: 20px;
-  padding: 35px 40px;
-  background-color: #855E42;
-}
+let mapedKeys = [];
+let audio = new Audio("src/tunes/a.mp3");
 
-.container header {
-  color: red;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+const playTune = (key) => {
+  audio.src = `src/tunes/${key}.mp3`;
+  audio.play();
 
-header h2 {
-  font-size: 1.6rem;
-}
+  const clickedKey = document.querySelector(`[data-key="${key}"]`);
+  clickedKey.classList.add("active");
+  setTimeout(() => {
+    clickedKey.classList.remove("active");
+  }, 150);
+};
 
-header .column {
-  display: flex;
-  align-items: center;
-}
+pianoKeys.forEach((key) => {
+  key.addEventListener("click", () => playTune(key.dataset.key));
+  mapedKeys.push(key.dataset.key);
+});
 
-header .column span {
-  font-weight: 500;
-  margin-right: 15px;
-  font-size: 1.19rem;
-}
+document.addEventListener("keydown", (e) => {
+  if (mapedKeys.includes(e.key)) {
+    playTune(e.key);
+  }
+});
 
-.volume-slider input {
-  accent-color: #fff;
-}
+const handleVolume = (e) => {
+  audio.volume = e.target.value;
+};
 
-.keys-check input {
-  width: 60px;
-  height: 30px;
-  appearance: none;
-  border-radius: 30px;
-  background-color: #4b4b4b;
-  cursor: pointer;
-  position: relative;
-}
+const showHideKeys = () => {
+  pianoKeys.forEach((key) => key.classList.toggle("hide"));
+};
 
-.keys-check input::before {
-  content: "";
-  height: 20px;
-  width: 20px;
-  background-color: #8c8c8c;
-  top: 50%;
-  left: 0.3rem;
-  border-radius: inherit;
-  position: absolute;
-  transform: translateY(-50%);
-  transition: all 0.3s ease;
-}
+volumeSlider.addEventListener("input", handleVolume);
 
-.keys-check input:checked::before {
-  left: 2.1rem;
-  background-color: #fff;
-}
-
-.piano-keys {
-  display: flex;
-  margin-top: 40px;
-}
-.piano-keys .key {
-  cursor: pointer;
-  user-select: none;
-  list-style: none;
-  color: #a2a2a2;
-  position: relative;
-  text-transform: uppercase;
-}
-
-.piano-keys .white {
-  width: 70px;
-  height: 230px;
-  border: 1px solid black;
-  border-radius: 8px;
-  background: linear-gradient(#fff 96%, #eee 4%);
-}
-
-.piano-keys .black {
-  width: 44px;
-  height: 140px;
-  z-index: 2;
-  margin: 0 -22px 0 -22px;
-  border: 1px solid black;
-  border-radius: 0 0 5px 5px;
-  background: linear-gradient(#333, #000);
-}
-
-.piano-keys span {
-  position: absolute;
-  bottom: 20px;
-  width: 100%;
-  text-align: center;
-  font-size: 1.13rem;
-}
-
-.piano-keys .white.active {
-  box-shadow: inset -5px 5px 20px rgba(0, 0, 0, 0.2);
-  background: linear-gradient(to bottom #fff 0%, #eee 100%);
-}
-
-.piano-keys .black.active {
-  box-shadow: inset -5px 5px 10px rgba(255, 255, 255, 0.1);
-  background: linear-gradient(to bottom #000, #434343);
-}
-
-.piano-keys .key.hide span {
-  display: none;
-}
+keysCheck.addEventListener("click", showHideKeys);
